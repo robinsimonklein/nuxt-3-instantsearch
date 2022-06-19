@@ -1,16 +1,26 @@
 <template>
   <div id="app">
-      <ais-instant-search :search-client="searchClient" index-name="articles">
+      <AisInstantSearchSsr>
           <NuxtLayout>
             <NuxtPage />
           </NuxtLayout>
-      </ais-instant-search>
+      </AisInstantSearchSsr>
   </div>
 </template>
 
 <script>
-import { AisInstantSearch } from 'vue-instantsearch/vue3/es';
+import {AisInstantSearchSsr, createServerRootMixin} from 'vue-instantsearch/vue3/es';
 import algoliasearch from 'algoliasearch/lite';
+import { renderToString } from '@vue/server-renderer';
+
+function _renderToString(app) {
+    return new Promise((resolve, reject) => {
+        renderToString(app, (err, res) => {
+            if (err) reject(err);
+            resolve(res);
+        });
+    });
+}
 
 const searchClient = algoliasearch(
     '0WZQ1LXXOX',
@@ -18,8 +28,34 @@ const searchClient = algoliasearch(
 );
 
 export default {
+    mixins: [
+        createServerRootMixin({
+            searchClient,
+            indexName: 'articles',
+        }),
+    ],
+    serverPrefetch() {
+        return this.instantsearch
+            .findResultsState({
+                component: this,
+                renderToString: _renderToString,
+            }).then(algoliaState => {
+                this.$ssrContext.nuxt.algoliaState = algoliaState;
+            });
+    },
+    beforeMount() {
+        const results =
+            (this.$nuxt.context && this.$nuxt.context.nuxtState.algoliaState) ||
+            window.__NUXT__.algoliaState;
+
+        this.instantsearch.hydrate(results);
+
+        // Remove the SSR state so it can't be applied again by mistake
+        delete this.$nuxt.context.nuxtState.algoliaState;
+        delete window.__NUXT__.algoliaState;
+    },
     components: {
-        AisInstantSearch,
+        AisInstantSearchSsr,
     },
     data() {
         return {
