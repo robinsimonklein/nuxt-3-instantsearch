@@ -7,7 +7,7 @@
             <NuxtLink class="article-card__link" :to="article.url" target="_blank" external>
                 <h2 class="article-card__title">{{ article.title }}</h2>
             </NuxtLink>
-            <p class="article-card__author">Author : {{ article.author }}</p>
+            <p class="article-card__source">Source : {{ article.source?.name }}</p>
         </div>
     </div>
 </template>
@@ -43,7 +43,7 @@ defineProps({
         }
     }
 
-    &__author {
+    &__source {
         color: #777;
     }
 }

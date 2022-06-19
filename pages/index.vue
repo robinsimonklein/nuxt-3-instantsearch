@@ -1,8 +1,6 @@
 <template>
     <div class="page">
-        <div class="stats">
-
-        </div>
+        <AisStats class="stats" />
         <AisHits class="articles">
             <template v-slot="{ items }">
                 <div class="articles__grid">
@@ -15,7 +13,7 @@
 </template>
 
 <script setup>
-import {AisHits, AisPagination} from "vue-instantsearch/vue3/es";
+import {AisHits, AisPagination, AisStats} from "vue-instantsearch/vue3/es";
 </script>
 
 <style lang="scss">
@@ -71,5 +69,9 @@ import {AisHits, AisPagination} from "vue-instantsearch/vue3/es";
         text-decoration: none;
         color: #777777;
     }
+}
+
+.stats {
+    margin-top: 20px;
 }
 </style>
